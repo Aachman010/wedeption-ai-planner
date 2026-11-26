@@ -1,0 +1,91 @@
+
+[
+    {
+        "id": 1,
+        "name": "Royal Palace Venue",
+        "category": "venue",
+        "city": "Bhopal",
+        "price_per_day": 100000,
+        "max_guest_capacity": 800,
+        "max_service_days": 5
+    },
+    {
+        "id": 2,
+        "name": "Grand Celebration Hall",
+        "category": "venue",
+        "city": "Bhopal",
+        "price_per_day": 80000,
+        "max_guest_capacity": 600,
+        "max_service_days": 3
+    },
+    {
+        "id": 3,
+        "name": "Sharma Catering",
+        "category": "catering",
+        "city": "Bhopal",
+        "price_per_plate": 300,
+        "max_guest_capacity": 700,
+        "max_service_days": 4
+    },
+    {
+        "id": 4,
+        "name": "Royal Feast Catering",
+        "category": "catering",
+        "city": "Bhopal",
+        "price_per_plate": 250,
+        "max_guest_capacity": 400,
+        "max_service_days": 3
+    },
+    {
+        "id": 5,
+        "name": "Capture Moments Photography",
+        "category": "photography",
+        "city": "Bhopal",
+        "package_price": 75000,
+        "max_service_days": 3
+    },
+    {
+        "id": 6,
+        "name": "Dream Wedding Photography",
+        "category": "photography",
+        "city": "Bhopal",
+        "package_price": 55000,
+        "max_service_days": 2
+    },
+    {
+        "id": 7,
+        "name": "Royal Decorators",
+        "category": "decoration",
+        "city": "Bhopal",
+        "price_per_event": 90000,
+        "max_guest_capacity": 1000,
+        "max_service_days": 4
+    },
+    {
+        "id": 8,
+        "name": "Elegant Wedding Decor",
+        "category": "decoration",
+        "city": "Bhopal",
+        "price_per_event": 65000,
+        "max_guest_capacity": 600,
+        "max_service_days": 3
+    },
+    {
+        "id": 9,
+        "name": "Melody Entertainment",
+        "category": "entertainment",
+        "city": "Bhopal",
+        "price_per_performance": 50000,
+        "max_guest_capacity": 800,
+        "max_service_days": 3
+    },
+    {
+        "id": 10,
+        "name": "Star Events Entertainment",
+        "category": "entertainment",
+        "city": "Bhopal",
+        "price_per_performance": 35000,
+        "max_guest_capacity": 500,
+        "max_service_days": 2
+    }
+]

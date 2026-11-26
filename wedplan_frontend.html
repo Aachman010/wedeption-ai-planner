@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WedPlan — Your wedding, thoughtfully planned</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+  <style>
+    :root {
+      --ink: #29251f;
+      --muted: #81786d;
+      --paper: #fbf8f3;
+      --card: #fffefa;
+      --line: #e9e1d6;
+      --accent: #9a654d;
+      --accent-dark: #754832;
+      --accent-soft: #f2e7dc;
+      --green: #526b58;
+      --shadow: 0 18px 50px rgba(67, 48, 34, .08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--paper); color: var(--ink);
+      font-family: "DM Sans", sans-serif; line-height: 1.55;
+    }
+    .topbar {
+      height: 76px; display: flex; align-items: center; justify-content: space-between;
+      padding: 0 clamp(20px, 6vw, 88px); border-bottom: 1px solid var(--line);
+      background: rgba(255,254,250,.88); position: sticky; top: 0; z-index: 10;
+      backdrop-filter: blur(14px);
+    }
+    .brand { display:flex; align-items:center; gap:11px; font-weight:700; letter-spacing:.02em; }
+    .brand-mark {
+      width:36px; height:36px; display:grid; place-items:center; border-radius:50%;
+      color:white; background:var(--accent); font-family:"Playfair Display",serif; font-size:20px;
+    }
+    .brand span:last-child { font-size:18px; }
+    .top-note { color:var(--muted); font-size:13px; }
+    .hero { max-width:1180px; margin:48px auto 28px; padding:0 24px; text-align:center; }
+    .eyebrow {
+      color:var(--accent); font-size:11px; font-weight:700; letter-spacing:.19em;
+      text-transform:uppercase; margin-bottom:12px;
+    }
+    h1 { font:600 clamp(34px,5vw,54px)/1.12 "Playfair Display",serif; margin:0; letter-spacing:-.025em; }
+    .hero p { color:var(--muted); margin:14px auto 0; max-width:570px; font-size:15px; }
+    .layout {
+      max-width:1280px; margin:36px auto 80px; padding:0 24px;
+      display:grid; grid-template-columns:minmax(300px, .78fr) minmax(0, 1.35fr); gap:24px; align-items:start;
+    }
+    .panel {
+      background:var(--card); border:1px solid var(--line); border-radius:18px;
+      box-shadow:var(--shadow); overflow:hidden;
+    }
+    .panel-head { padding:24px 26px 18px; border-bottom:1px solid var(--line); }
+    .panel-head h2 { font:600 23px "Playfair Display",serif; margin:0; }
+    .panel-head p { color:var(--muted); font-size:13px; margin:6px 0 0; }
+    form { padding:22px 26px 26px; }
+    .section-label {
+      margin:4px 0 15px; color:var(--accent); font-size:11px; font-weight:700;
+      letter-spacing:.13em; text-transform:uppercase;
+    }
+    .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:15px; }
+    .field { margin-bottom:16px; min-width:0; }
+    label { display:block; font-size:12px; font-weight:600; margin-bottom:7px; color:#554b41; }
+    input, select {
+      width:100%; min-height:46px; padding:11px 12px; border:1px solid #ded4c8;
+      border-radius:9px; background:#fff; color:var(--ink); font:14px "DM Sans",sans-serif;
+      outline:none; transition:border .2s, box-shadow .2s;
+    }
+    input:focus, select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(154,101,77,.12); }
+    .hint { color:var(--muted); font-size:11px; margin-top:5px; }
+    .priority-list { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .priority-list .field { margin:0; }
+    .submit-btn {
+      margin-top:23px; width:100%; min-height:51px; border:0; border-radius:10px;
+      background:var(--accent); color:white; font:700 14px "DM Sans",sans-serif;
+      cursor:pointer; transition:background .2s, transform .2s;
+    }
+    .submit-btn:hover { background:var(--accent-dark); transform:translateY(-1px); }
+    .submit-btn:disabled { opacity:.65; cursor:wait; transform:none; }
+    .result-panel { min-height:690px; }
+    .result-top {
+      padding:24px 28px; display:flex; align-items:center; justify-content:space-between;
+      border-bottom:1px solid var(--line); gap:12px;
+    }
+    .result-top h2 { font:600 23px "Playfair Display",serif; margin:0; }
+    .status {
+      display:inline-flex; align-items:center; gap:7px; border-radius:99px;
+      background:#f3eee7; color:#776b5f; padding:7px 11px; font-size:11px; font-weight:700;
+      white-space:nowrap;
+    }
+    .status-dot { width:7px; height:7px; border-radius:50%; background:#b8a998; }
+    .result-content { padding:28px; min-height:600px; }
+    .empty-state { min-height:530px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; color:var(--muted); }
+    .empty-icon {
+      width:66px; height:66px; border-radius:50%; display:grid; place-items:center;
+      background:var(--accent-soft); color:var(--accent); font:30px "Playfair Display",serif; margin-bottom:20px;
+    }
+    .empty-state h3 { color:var(--ink); font:600 25px "Playfair Display",serif; margin:0 0 9px; }
+    .empty-state p { max-width:310px; font-size:13px; margin:0; }
+    .loader { display:none; text-align:center; padding:100px 20px; color:var(--muted); }
+    .spinner {
+      width:34px; height:34px; border:3px solid var(--accent-soft); border-top-color:var(--accent);
+      border-radius:50%; animation:spin .8s linear infinite; margin:0 auto 15px;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .error {
+      display:none; margin:20px 28px 0; padding:13px 15px; border-radius:9px;
+      background:#fff0ed; color:#9b3e2f; font-size:13px; border:1px solid #f0d0c8;
+    }
+    #planOutput { display:none; color:#403930; font-size:14px; line-height:1.75; overflow-wrap:anywhere; }
+    #planOutput h1, #planOutput h2, #planOutput h3 {
+      color:var(--ink); font-family:"Playfair Display",serif; line-height:1.25;
+    }
+    #planOutput h1 { font-size:29px; margin:0 0 20px; }
+    #planOutput h2 { font-size:22px; margin:30px 0 13px; padding-bottom:9px; border-bottom:1px solid var(--line); }
+    #planOutput h3 { font-size:17px; margin:22px 0 9px; }
+    #planOutput p { margin:0 0 13px; }
+    #planOutput ul, #planOutput ol { padding-left:23px; margin:8px 0 18px; }
+    #planOutput li { margin:5px 0; }
+    #planOutput strong { color:#33271f; }
+    #planOutput blockquote {
+      margin:18px 0; padding:13px 17px; border-left:3px solid var(--accent);
+      background:#f8f1e9; color:#6b5b4d; border-radius:0 8px 8px 0;
+    }
+    .table-wrap { overflow-x:auto; margin:16px 0 22px; border:1px solid var(--line); border-radius:10px; }
+    #planOutput table { width:100%; min-width:650px; border-collapse:collapse; font-size:12px; }
+    #planOutput th, #planOutput td { padding:12px 13px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+    #planOutput th { background:#f5eee6; color:#574536; font-weight:700; white-space:nowrap; }
+    #planOutput tr:last-child td { border-bottom:0; }
+    #planOutput code { background:#f2ece5; padding:2px 5px; border-radius:4px; }
+    .footer { text-align:center; color:#a1988d; font-size:11px; padding:0 20px 30px; }
+    @media (max-width:900px) {
+      .layout { grid-template-columns:1fr; max-width:700px; }
+      .result-panel { min-height:500px; }
+      .result-content { min-height:450px; }
+      .empty-state { min-height:380px; }
+    }
+    @media (max-width:520px) {
+      .topbar { height:64px; padding:0 18px; }
+      .top-note { display:none; }
+      .hero { margin-top:34px; }
+      .layout { padding:0 13px; margin-top:25px; }
+      .panel-head, form, .result-top, .result-content { padding-left:18px; padding-right:18px; }
+      .field-grid, .priority-list { grid-template-columns:1fr; gap:0; }
+      .result-top { align-items:flex-start; flex-direction:column; }
+      .error { margin-left:18px; margin-right:18px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">W</div><span>wedplan</span></div>
+    <div class="top-note">Thoughtful planning. Beautifully brought together.</div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">Your celebration starts here</div>
+    <h1>A wedding plan that feels like yours.</h1>
+    <p>Share a few details about your celebration. WedPlan will build a budget-aware plan around your needs and priorities.</p>
+  </section>
+
+  <main class="layout">
+    <section class="panel">
+      <div class="panel-head">
+        <h2>The wedding brief</h2>
+        <p>Enter your details to generate a tailored plan.</p>
+      </div>
+      <form id="weddingForm">
+        <div class="section-label">01 — Celebration details</div>
+        <div class="field">
+          <label for="city">Wedding city</label>
+          <input id="city" name="city" type="text" placeholder="e.g. Bhopal" value="Bhopal" required />
+        </div>
+        <div class="field-grid">
+          <div class="field">
+            <label for="total_budget">Total budget (₹)</label>
+            <input id="total_budget" name="total_budget" type="number" min="1" step="1" placeholder="2500000" value="2500000" required />
+          </div>
+          <div class="field">
+            <label for="guest_count">Guest count</label>
+            <input id="guest_count" name="guest_count" type="number" min="1" step="1" placeholder="300" value="300" required />
+          </div>
+        </div>
+        <div class="field">
+          <label for="wedding_days">Wedding duration (days)</label>
+          <input id="wedding_days" name="wedding_days" type="number" min="1" step="1" placeholder="2" value="2" required />
+        </div>
+
+        <div class="section-label" style="margin-top:25px">02 — Your priorities</div>
+        <p class="hint" style="margin:-7px 0 15px">Choose how important each category is. The backend uses these priorities to distribute the remaining budget.</p>
+        <div class="priority-list">
+          <div class="field">
+            <label for="venue_priority">Venue</label>
+            <select id="venue_priority"><option value="high" selected>High priority</option><option value="medium">Medium priority</option><option value="low">Low priority</option></select>
+          </div>
+          <div class="field">
+            <label for="catering_priority">Catering</label>
+            <select id="catering_priority"><option value="high" selected>High priority</option><option value="medium">Medium priority</option><option value="low">Low priority</option></select>
+          </div>
+          <div class="field">
+            <label for="decoration_priority">Decoration</label>
+            <select id="decoration_priority"><option value="high">High priority</option><option value="medium" selected>Medium priority</option><option value="low">Low priority</option></select>
+          </div>
+          <div class="field">
+            <label for="photography_priority">Photography</label>
+            <select id="photography_priority"><option value="high">High priority</option><option value="medium" selected>Medium priority</option><option value="low">Low priority</option></select>
+          </div>
+          <div class="field">
+            <label for="entertainment_priority">Entertainment</label>
+            <select id="entertainment_priority"><option value="high">High priority</option><option value="medium">Medium priority</option><option value="low" selected>Low priority</option></select>
+          </div>
+        </div>
+        <button class="submit-btn" id="submitBtn" type="submit">Generate my wedding plan <span aria-hidden="true">→</span></button>
+        <p class="hint" style="text-align:center;margin-top:12px">Your details are sent to your local FastAPI backend.</p>
+      </form>
+    </section>
+
+    <section class="panel result-panel">
+      <div class="result-top">
+        <div><h2>Your wedding plan</h2><div class="hint">Your budget and vendor recommendations</div></div>
+        <div class="status" id="status"><span class="status-dot"></span><span id="statusText">Awaiting details</span></div>
+      </div>
+      <div class="error" id="errorBox" role="alert"></div>
+      <div class="result-content">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">W</div>
+          <h3>Your plan will appear here</h3>
+          <p>Complete the wedding brief and generate a plan to see your backend response in a clean, readable format.</p>
+        </div>
+        <div class="loader" id="loader"><div class="spinner"></div><strong>Putting your plan together…</strong><p class="hint">Checking your brief and preparing recommendations.</p></div>
+        <article id="planOutput"></article>
+      </div>
+    </section>
+  </main>
+  <div class="footer">WEDPLAN · A considered start to your celebration</div>
+
+  <script>
+    // Same-origin URL: frontend and API are both served by FastAPI.
+    const API_URL = "/generate-wedding-plan";
+
+    const form = document.getElementById("weddingForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const emptyState = document.getElementById("emptyState");
+    const loader = document.getElementById("loader");
+    const planOutput = document.getElementById("planOutput");
+    const errorBox = document.getElementById("errorBox");
+    const statusText = document.getElementById("statusText");
+
+    function setStatus(text) {
+      statusText.textContent = text;
+    }
+
+    function showLoading() {
+      emptyState.style.display = "none";
+      planOutput.style.display = "none";
+      errorBox.style.display = "none";
+      loader.style.display = "block";
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Generating your plan…";
+      setStatus("Generating");
+    }
+
+    function showError(message) {
+      loader.style.display = "none";
+      errorBox.textContent = message;
+      errorBox.style.display = "block";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Try again →";
+      setStatus("Could not generate");
+    }
+
+    function renderPlan(payload) {
+      // The current backend returns { wedding_plan: "Markdown text" }.
+      // This also handles a structured object if the backend changes later.
+      let content = payload?.wedding_plan ?? payload;
+      if (typeof content === "object" && content !== null) {
+        content = "```json\n" + JSON.stringify(content, null, 2) + "\n```";
+      }
+      if (typeof content !== "string" || !content.trim()) {
+        throw new Error("The API responded, but no wedding plan was found in the response.");
+      }
+
+      const html = marked.parse(content, { gfm: true, breaks: true });
+      planOutput.innerHTML = DOMPurify.sanitize(html);
+
+      // Make wide Markdown tables scroll horizontally instead of breaking the panel.
+      planOutput.querySelectorAll("table").forEach(table => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "table-wrap";
+        table.parentNode.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      });
+
+      loader.style.display = "none";
+      emptyState.style.display = "none";
+      planOutput.style.display = "block";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Regenerate wedding plan →";
+      setStatus("Plan generated");
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const payload = {
+        city: document.getElementById("city").value.trim(),
+        total_budget: Number(document.getElementById("total_budget").value),
+        guest_count: Number(document.getElementById("guest_count").value),
+        wedding_days: Number(document.getElementById("wedding_days").value),
+        venue_priority: document.getElementById("venue_priority").value,
+        catering_priority: document.getElementById("catering_priority").value,
+        decoration_priority: document.getElementById("decoration_priority").value,
+        photography_priority: document.getElementById("photography_priority").value,
+        entertainment_priority: document.getElementById("entertainment_priority").value
+      };
+
+      if (!payload.city || payload.total_budget <= 0 || payload.guest_count <= 0 || payload.wedding_days <= 0) {
+        showError("Please enter a city and valid positive values for budget, guest count and wedding duration.");
+        return;
+      }
+
+      showLoading();
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const raw = await response.text();
+        let data;
+        try { data = raw ? JSON.parse(raw) : {}; }
+        catch { throw new Error("The server returned a response that was not valid JSON. Check the FastAPI terminal."); }
+
+        if (!response.ok) {
+          const detail = data?.detail || `Request failed with status ${response.status}`;
+          throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+        }
+
+        renderPlan(data);
+      } catch (error) {
+        console.error("Wedding plan request failed:", error);
+        showError(error.message || "Could not connect to the backend. Make sure FastAPI is running.");
+      }
+    });
+  </script>
+</body>
+</html>
